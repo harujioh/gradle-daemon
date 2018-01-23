@@ -1,10 +1,12 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-group = 'jp.harujioh'
-version = '1.0.0'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+
+def encoding = { it.encoding = 'UTF-8' }
+tasks.withType(AbstractCompile) each { encoding it.options }
+tasks.withType(GroovyCompile) each { encoding it.groovyOptions }
 
 repositories {
     jcenter()
