@@ -85,8 +85,6 @@ class MacDaemon implements EnvDaemon {
         def plistName = project.group + '.' + getDaemonName();
         def plistFile = new File(plistDir, plistName + '.plist');
 
-        println plistFile
-
         if(plistFile.isFile()){
             ['launchctl', 'unload', plistFile].execute()
 
