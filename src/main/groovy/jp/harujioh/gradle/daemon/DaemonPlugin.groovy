@@ -12,25 +12,26 @@ import jp.harujioh.gradle.daemon.env.*
  * @author harujioh
  */
 class DaemonPlugin implements Plugin<Project> {
+
+	/**
+	 * 実行
+	 * @param project プロジェクト
+	 */
 	void apply(Project project) {
 		project.extensions.create("daemon", DaemonConfig)
 		if(!project.daemon.name){
 			project.daemon.name project.rootProject.name
 		}
 
-		def EnvDaemon daemon
 		def os = project.ant.properties['os.name']
-		if(os == 'Mac OS X') {
-			daemon = new MacDaemon(project)
-		} else {
-			throw new GradleException("Unsupported OS : $os")
-		}
+		EnvDaemonType daemonType = EnvDaemonType.getDaemonType(os).orElseThrow({ new GradleException("Unsupported OS : $os") })
+		EnvDaemon daemon = daemonType.newDaemonInstance(project)
 		
 		project.task('loadDaemon', group: 'Daemon', description: 'Launch Running Daemon.', dependsOn: ['jar']) {
 			mustRunAfter(['jar'])
 			
 			doLast {
-				def launchDir = getLaunchDirectory(project, daemon)
+				def launchDir = getLaunchDirectory(project, daemonType)
 
 				daemon.load(launchDir)
 			}
@@ -38,19 +39,32 @@ class DaemonPlugin implements Plugin<Project> {
 		
 		project.task('unloadDaemon', group: 'Daemon', description: 'Shutdown Running Daemon.') {
 			doLast {
-				def launchDir = getLaunchDirectory(project, daemon)
+				def launchDir = getLaunchDirectory(project, daemonType)
 
 				daemon.unload(launchDir)
 			}
 		}
+		
+		project.task('rebootDaemon', group: 'Daemon', description: 'Reboot Running Daemon.') {
+			doLast {
+				def launchDir = getLaunchDirectory(project, daemonType)
+
+				daemon.reboot(launchDir)
+			}
+		}
 	}
 
-	private File getLaunchDirectory(Project project, EnvDaemon daemon){
+	/**
+	 * 起動ディレクトリを取得します。
+	 * @param project プロジェクト
+	 * @param daemonType デーモン種類
+	 */
+	private File getLaunchDirectory(Project project, EnvDaemonType daemonType){
 		def launchDir = new File(project.projectDir, 'launch')
 		if(project.hasProperty('launch')){
 			launchDir = new File(launchDir, project.launch)
 		} else if(project.daemon.env) {
-			launchDir = new File(launchDir, daemon.getLaunchDirectoryName())
+			launchDir = new File(launchDir, daemonType.getDirectoryName())
 		}
 
 		if(!launchDir.isDirectory()){
