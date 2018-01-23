@@ -19,9 +19,6 @@ class DaemonPlugin implements Plugin<Project> {
 	 */
 	void apply(Project project) {
 		project.extensions.create("daemon", DaemonConfig)
-		if(!project.daemon.name){
-			project.daemon.name project.rootProject.name
-		}
 
 		def os = project.ant.properties['os.name']
 		EnvDaemonType daemonType = EnvDaemonType.getDaemonType(os).orElseThrow({ new GradleException("Unsupported OS : $os") })

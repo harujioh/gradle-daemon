@@ -22,12 +22,24 @@ class MacDaemon implements EnvDaemon {
 		this.project = project
 	}
 
+    /**
+     * {@inheritDoc}
+     */
+    public String getDaemonName(){
+        if(project.properties['appDaemonName']){
+            return project.appDaemonName.replaceAll(' ', '')
+        }
+        return project.rootProject.name.replaceAll(' ', '');
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void load(File launchDir){
+        unload(launchDir)
+
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
-        def plistName = project.group + '.' + project.daemon.name;
+        def plistName = project.group + '.' + getDaemonName();
         def plistFile = new File(plistDir, plistName + '.plist');
 
         def configFile = new File(launchDir, project.daemon.config)
@@ -37,11 +49,13 @@ class MacDaemon implements EnvDaemon {
             plistDir.mkdir()
         }
 
-        if(plistFile.isFile()){
-            ['launchctl', 'unload', plistFile].execute()
-        }
-
-        def option = ([project.daemon.option].flatten().collect{ return "    <string>$it</string>\n" }.join())
+        def option = ([
+            project.daemon.option,
+            "-D${project.daemon.configKey}=${configFile}",
+            "-Dlog4j.configurationFile=${log4j2File}",
+            "-jar",
+            "${project.jar.archivePath}"
+        ].flatten().collect{ return "\n    <string>$it</string>" }.join())
 
         plistFile.text = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
@@ -51,11 +65,7 @@ class MacDaemon implements EnvDaemon {
 <string>$plistName</string>
 <key>ProgramArguments</key>
 <array>
-    <string>/usr/bin/java</string>
-$option    <string>-D${project.daemon.configKey}=${configFile}</string>
-    <string>-Dlog4j.configurationFile=${log4j2File}</string>
-    <string>-jar</string>
-    <string>${project.jar.archivePath}</string>
+    <string>/usr/bin/java</string>$option
 </array>
 <key>RunAtLoad</key>
 <true/>
@@ -72,11 +82,17 @@ $option    <string>-D${project.daemon.configKey}=${configFile}</string>
 	 */
 	public void unload(File launchDir){
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
-        def plistName = project.group + '.' + project.daemon.name;
+        def plistName = project.group + '.' + getDaemonName();
         def plistFile = new File(plistDir, plistName + '.plist');
+
+        println plistFile
 
         if(plistFile.isFile()){
             ['launchctl', 'unload', plistFile].execute()
+
+            sleep 2000
+
+            plistFile.delete()
         }
 	}
 

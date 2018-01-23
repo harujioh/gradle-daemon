@@ -10,6 +10,12 @@ import org.gradle.api.Project
 interface EnvDaemon {
 
 	/**
+	 * デーモン名を取得します。
+	 * @return デーモン名
+	 */
+	String getDaemonName()
+
+	/**
 	 * デーモン起動を開始します。
 	 * @param launchDir 起動ディレクトリ
 	 */

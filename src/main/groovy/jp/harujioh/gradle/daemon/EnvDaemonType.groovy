@@ -16,6 +16,11 @@ enum EnvDaemonType {
 	 */
 	MAC('Mac OS X', 'macos', { p -> new MacDaemon(p) }),
 
+	/**
+	 * ant.properties['os.name'] = 'Linux'
+	 */
+	LINUX('Linux', 'linux', { p -> new LinuxDaemon(p) }),
+
 	;
 
 	/**
