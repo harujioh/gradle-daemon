@@ -80,6 +80,8 @@ class DaemonPlugin implements Plugin<Project> {
             ['launchctl', 'unload', plistFile].execute()
         }
 
+        def option = ([project.daemon.option].flatten().collect{ return "    <string>$it</string>\n" }.join())
+
         plistFile.text = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
 <plist version=\"1.0\">
@@ -89,8 +91,7 @@ class DaemonPlugin implements Plugin<Project> {
 <key>ProgramArguments</key>
 <array>
     <string>/usr/bin/java</string>
-    <string>-Dapple.awt.UIElement=true</string>
-    <string>-D${project.daemon.configKey}=${configFile}</string>
+$option    <string>-D${project.daemon.configKey}=${configFile}</string>
     <string>-Dlog4j.configurationFile=${log4j2File}</string>
     <string>-jar</string>
     <string>${project.jar.archivePath}</string>
@@ -122,4 +123,5 @@ class DaemonConfig {
 	def String configKey = 'config.yaml'
 	def String config = 'config.yaml'
 	def String log4j2 = 'log4j2.xml'
+	def option = '-Dapple.awt.UIElement=true'
 }
