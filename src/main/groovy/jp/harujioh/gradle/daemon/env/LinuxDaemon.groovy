@@ -131,8 +131,8 @@ exit 0"""
 	 * {@inheritDoc}
 	 */
 	public void reboot(File launchDir){
-        load(launchDir)
-        sleep 2000
         unload(launchDir)
+        sleep 2000
+        load(launchDir)
 	}
 }
