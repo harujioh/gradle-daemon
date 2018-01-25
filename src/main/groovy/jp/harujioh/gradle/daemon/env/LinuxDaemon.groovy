@@ -106,7 +106,7 @@ exit 0"""
         ['chmod', '755', daemonFile.absolutePath].execute()
         ['sudo', 'mv', daemonFile.absolutePath, daemonLinkFile.absolutePath].execute()
         ['sudo', daemonLinkFile.absolutePath, 'start'].execute()
-        ['sudo', 'insserv', myAppDaemonName].execute()
+        ['sudo', 'insserv', getDaemonName()].execute()
 	}
 
 	/**
@@ -116,7 +116,7 @@ exit 0"""
         def daemonName = getDaemonName();
         def daemonLinkFile = new File('/etc/init.d/', daemonName)
 
-        ['sudo', 'insserv', '-r', myAppDaemonName]
+        ['sudo', 'insserv', '-r', getDaemonName()]
 
         if(daemonLinkFile.isFile()){
             ['sudo', daemonLinkFile.absolutePath, 'stop'].execute()
@@ -131,8 +131,8 @@ exit 0"""
 	 * {@inheritDoc}
 	 */
 	public void reboot(File launchDir){
-        load(launchDir)
-        sleep 2000
         unload(launchDir)
+        sleep 2000
+        load(launchDir)
 	}
 }

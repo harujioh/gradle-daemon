@@ -23,32 +23,29 @@ class DaemonPlugin implements Plugin<Project> {
 		def os = project.ant.properties['os.name']
 		EnvDaemonType daemonType = EnvDaemonType.getDaemonType(os).orElseThrow({ new GradleException("Unsupported OS : $os") })
 		EnvDaemon daemon = daemonType.newDaemonInstance(project)
+		File launchDir = getLaunchDirectory(project, daemonType)
 		
 		project.task('loadDaemon', group: 'Daemon', description: 'Launch Running Daemon.', dependsOn: ['jar']) {
 			mustRunAfter(['jar'])
 			
 			doLast {
-				def launchDir = getLaunchDirectory(project, daemonType)
-
 				daemon.load(launchDir)
 			}
 		}
 		
 		project.task('unloadDaemon', group: 'Daemon', description: 'Shutdown Running Daemon.') {
 			doLast {
-				def launchDir = getLaunchDirectory(project, daemonType)
-
 				daemon.unload(launchDir)
 			}
 		}
 		
 		project.task('rebootDaemon', group: 'Daemon', description: 'Reboot Running Daemon.') {
 			doLast {
-				def launchDir = getLaunchDirectory(project, daemonType)
-
 				daemon.reboot(launchDir)
 			}
 		}
+
+		project.extensions.launchDir = launchDir
 	}
 
 	/**
