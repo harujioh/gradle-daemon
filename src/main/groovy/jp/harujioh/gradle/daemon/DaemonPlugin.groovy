@@ -29,23 +29,28 @@ class DaemonPlugin implements Plugin<Project> {
 			mustRunAfter(['jar'])
 			
 			doLast {
+				checkLaunchDirectory(launchDir);
 				daemon.load(launchDir)
 			}
 		}
 		
 		project.task('unloadDaemon', group: 'Daemon', description: 'Shutdown Running Daemon.') {
 			doLast {
+				checkLaunchDirectory(launchDir);
 				daemon.unload(launchDir)
 			}
 		}
 		
 		project.task('rebootDaemon', group: 'Daemon', description: 'Reboot Running Daemon.') {
 			doLast {
+				checkLaunchDirectory(launchDir);
 				daemon.reboot(launchDir)
 			}
 		}
 
-		project.extensions.launchDir = launchDir
+		if(launchDir != null){
+			project.extensions.launchDir = launchDir
+		}
 	}
 
 	/**
@@ -62,8 +67,18 @@ class DaemonPlugin implements Plugin<Project> {
 		}
 
 		if(!launchDir.isDirectory()){
-			throw new GradleException("Not found launchDir: $launchDir")
+			return null;
 		}
 		return launchDir;
+	}
+
+	/**
+	 * 起動ディレクトリが設定されているかチェックします。
+	 * @param launchDir 起動ディレクトリ
+	 */
+	private void checkLaunchDirectory(File launchDir){
+		if(launchDir == null){
+			throw new GradleException("Not found launchDir: $launchDir")
+		}
 	}
 }
