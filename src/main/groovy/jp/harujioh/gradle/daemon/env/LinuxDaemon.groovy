@@ -35,23 +35,14 @@ class LinuxDaemon implements EnvDaemon {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void load(File launchDir){
+	public void load(File launchDir, Object[] arguments){
         unload(launchDir)
 
         def daemonName = getDaemonName();
         def daemonFile = new File(launchDir, daemonName)
         def daemonLinkFile = new File('/etc/init.d/', daemonName)
 
-        def configFile = new File(launchDir, project.daemon.config)
-        def log4j2File = new File(launchDir, project.daemon.log4j2)
-
-        def option = ([
-            project.daemon.option,
-            "-D${project.daemon.configKey}=${configFile}",
-            "-Dlog4j.configurationFile=${log4j2File}",
-            "-jar",
-            "${project.jar.archivePath}"
-        ].flatten().collect{ return " \\\n${it}" }.join())
+        def option = arguments.flatten().collect{ return " \\\n${it}" }.join()
 
         daemonFile.text = """#!/bin/sh
 #/etc/init.d/${daemonName}
