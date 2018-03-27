@@ -30,7 +30,7 @@ class DaemonPlugin implements Plugin<Project> {
 			
 			doLast {
 				checkLaunchDirectory(launchDir);
-				daemon.load(launchDir)
+				daemon.load(launchDir, getArguments(project, launchDir))
 			}
 		}
 		
@@ -80,5 +80,24 @@ class DaemonPlugin implements Plugin<Project> {
 		if(launchDir == null){
 			throw new GradleException("Not found launchDir: $launchDir")
 		}
+	}
+
+	/**
+	 * 起動コマンド引数を取得します。
+	 * @param project プロジェクト
+	 * @param launchDir 起動ディレクトリ
+	 */
+	private def getArguments(Project project, File launchDir){
+        def configFile = new File(launchDir, project.daemon.config)
+        def log4j2File = new File(launchDir, project.daemon.log4j2)
+
+		return [
+            project.daemon.option,
+            "-D${project.daemon.configKey}=${configFile}",
+            "-Dlog4j.configurationFile=${log4j2File}",
+            "-jar",
+            "${project.jar.archivePath}",
+            project.hasProperty('daemonArgs') ? project.daemonArgs.split(' ') : []
+        ];
 	}
 }

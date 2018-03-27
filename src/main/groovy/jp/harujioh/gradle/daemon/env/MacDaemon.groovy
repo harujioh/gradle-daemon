@@ -35,27 +35,18 @@ class MacDaemon implements EnvDaemon {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void load(File launchDir){
+	public void load(File launchDir, Object[] arguments){
         unload(launchDir)
 
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
         def plistName = project.group + '.' + getDaemonName();
         def plistFile = new File(plistDir, plistName + '.plist');
 
-        def configFile = new File(launchDir, project.daemon.config)
-        def log4j2File = new File(launchDir, project.daemon.log4j2)
+        def option = arguments.flatten().collect{ return "\n    <string>$it</string>" }.join()
 
         if(!plistDir.isDirectory()){
             plistDir.mkdir()
         }
-
-        def option = ([
-            project.daemon.option,
-            "-D${project.daemon.configKey}=${configFile}",
-            "-Dlog4j.configurationFile=${log4j2File}",
-            "-jar",
-            "${project.jar.archivePath}"
-        ].flatten().collect{ return "\n    <string>$it</string>" }.join())
 
         plistFile.text = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd\">

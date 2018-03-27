@@ -18,8 +18,9 @@ interface EnvDaemon {
 	/**
 	 * デーモン起動を開始します。
 	 * @param launchDir 起動ディレクトリ
+	 * @param arguments 起動コマンド引数
 	 */
-	void load(File launchDir)
+	void load(File launchDir, Object[] arguments)
 
 	/**
 	 * デーモン起動を停止します。
