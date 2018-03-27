@@ -24,14 +24,13 @@ class DaemonPlugin implements Plugin<Project> {
 		EnvDaemonType daemonType = EnvDaemonType.getDaemonType(os).orElseThrow({ new GradleException("Unsupported OS : $os") })
 		EnvDaemon daemon = daemonType.newDaemonInstance(project)
 		File launchDir = getLaunchDirectory(project, daemonType)
-		def arguments = getArguments(project, launchDir);
 		
 		project.task('loadDaemon', group: 'Daemon', description: 'Launch Running Daemon.', dependsOn: ['jar']) {
 			mustRunAfter(['jar'])
 			
 			doLast {
 				checkLaunchDirectory(launchDir);
-				daemon.load(launchDir, arguments)
+				daemon.load(launchDir, getArguments(project, launchDir))
 			}
 		}
 		
