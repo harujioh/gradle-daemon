@@ -36,7 +36,7 @@ class MacDaemon implements EnvDaemon {
 	 * {@inheritDoc}
 	 */
 	public void load(File launchDir, Object[] arguments){
-        unload(launchDir)
+        unload()
 
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
         def plistName = project.group + '.' + getDaemonName();
@@ -71,7 +71,7 @@ class MacDaemon implements EnvDaemon {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void unload(File launchDir){
+	public void unload(){
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
         def plistName = project.group + '.' + getDaemonName();
         def plistFile = new File(plistDir, plistName + '.plist');
@@ -89,7 +89,7 @@ class MacDaemon implements EnvDaemon {
 	 * {@inheritDoc}
 	 */
 	public void reboot(File launchDir){
-        unload(launchDir)
+        unload()
         sleep 2000
         load(launchDir)
 	}

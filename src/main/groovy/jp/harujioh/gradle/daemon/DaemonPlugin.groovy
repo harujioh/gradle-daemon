@@ -36,8 +36,7 @@ class DaemonPlugin implements Plugin<Project> {
 		
 		project.task('unloadDaemon', group: 'Daemon', description: 'Shutdown Running Daemon.') {
 			doLast {
-				checkLaunchDirectory(launchDir);
-				daemon.unload(launchDir)
+				daemon.unload()
 			}
 		}
 		

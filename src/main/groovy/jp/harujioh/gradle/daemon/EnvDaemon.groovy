@@ -24,9 +24,8 @@ interface EnvDaemon {
 
 	/**
 	 * デーモン起動を停止します。
-	 * @param launchDir 起動ディレクトリ
 	 */
-	void unload(File launchDir)
+	void unload()
 
 	/**
 	 * デーモンを再起動します。

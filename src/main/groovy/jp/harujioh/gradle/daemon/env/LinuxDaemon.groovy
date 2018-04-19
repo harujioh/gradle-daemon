@@ -36,7 +36,7 @@ class LinuxDaemon implements EnvDaemon {
 	 * {@inheritDoc}
 	 */
 	public void load(File launchDir, Object[] arguments){
-        unload(launchDir)
+        unload()
 
         def daemonName = getDaemonName();
         def daemonFile = new File(launchDir, daemonName)
@@ -103,7 +103,7 @@ exit 0"""
 	/**
 	 * {@inheritDoc}
 	 */
-	public void unload(File launchDir){
+	public void unload(){
         def daemonName = getDaemonName();
         def daemonLinkFile = new File('/etc/init.d/', daemonName)
 
@@ -122,7 +122,7 @@ exit 0"""
 	 * {@inheritDoc}
 	 */
 	public void reboot(File launchDir){
-        unload(launchDir)
+        unload()
         sleep 2000
         load(launchDir)
 	}
