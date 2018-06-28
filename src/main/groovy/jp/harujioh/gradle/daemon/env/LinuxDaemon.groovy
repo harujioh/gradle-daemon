@@ -32,11 +32,31 @@ class LinuxDaemon implements EnvDaemon {
         return project.rootProject.name.replaceAll(' ', '').toLowerCase() + 'd';
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void exe(File launchDir, Object[] arguments){
+        def exeDir = new File(System.properties['user.home'])
+        def exeFile = new File(exeDir, 'launch.sh');
+
+        def option = arguments.flatten().collect{ return " \\\n$it" }.join()
+
+        if(!exeDir.isDirectory()){
+            exeDir.mkdir()
+        }
+
+        exeFile.text = """#!/bin/sh
+
+/usr/bin/java$option"""
+
+        ['chmod', 'a+x', exeFile].execute()
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void load(File launchDir, Object[] arguments){
-        unload(launchDir)
+        unload()
 
         def daemonName = getDaemonName();
         def daemonFile = new File(launchDir, daemonName)
@@ -103,7 +123,7 @@ exit 0"""
 	/**
 	 * {@inheritDoc}
 	 */
-	public void unload(File launchDir){
+	public void unload(){
         def daemonName = getDaemonName();
         def daemonLinkFile = new File('/etc/init.d/', daemonName)
 
@@ -122,7 +142,7 @@ exit 0"""
 	 * {@inheritDoc}
 	 */
 	public void reboot(File launchDir){
-        unload(launchDir)
+        unload()
         sleep 2000
         load(launchDir)
 	}

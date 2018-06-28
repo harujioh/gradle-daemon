@@ -25,6 +25,15 @@ class DaemonPlugin implements Plugin<Project> {
 		EnvDaemon daemon = daemonType.newDaemonInstance(project)
 		File launchDir = getLaunchDirectory(project, daemonType)
 		
+		project.task('exe', group: 'Application', description: 'Create launch application.', dependsOn: ['jar']) {
+			mustRunAfter(['jar'])
+			
+			doLast {
+				checkLaunchDirectory(launchDir);
+				daemon.exe(launchDir, getArguments(project, launchDir))
+			}
+		}
+		
 		project.task('loadDaemon', group: 'Daemon', description: 'Launch Running Daemon.', dependsOn: ['jar']) {
 			mustRunAfter(['jar'])
 			
@@ -36,8 +45,7 @@ class DaemonPlugin implements Plugin<Project> {
 		
 		project.task('unloadDaemon', group: 'Daemon', description: 'Shutdown Running Daemon.') {
 			doLast {
-				checkLaunchDirectory(launchDir);
-				daemon.unload(launchDir)
+				daemon.unload()
 			}
 		}
 		

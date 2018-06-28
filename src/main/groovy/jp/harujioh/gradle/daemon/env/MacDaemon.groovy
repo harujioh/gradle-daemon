@@ -32,11 +32,32 @@ class MacDaemon implements EnvDaemon {
         return project.rootProject.name.replaceAll(' ', '');
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void exe(File launchDir, Object[] arguments){
+        def exeDir = new File(System.properties['user.home'], 'Desktop')
+        def exeFile = new File(exeDir, 'launch.command');
+
+        def option = arguments.flatten().collect{ return " \\\n$it" }.join()
+
+        if(!exeDir.isDirectory()){
+            exeDir.mkdir()
+        }
+
+        exeFile.text = """#!/bin/sh
+
+/usr/bin/java$option"""
+
+        ['chmod', 'a+x', exeFile].execute()
+        ['/bin/bash', '-c', 'osascript -e "tell application \\"System Events\\" to make login item at end with properties {path:\\"' + exeFile + '\\"}"'].execute()
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void load(File launchDir, Object[] arguments){
-        unload(launchDir)
+        unload()
 
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
         def plistName = project.group + '.' + getDaemonName();
@@ -71,7 +92,7 @@ class MacDaemon implements EnvDaemon {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void unload(File launchDir){
+	public void unload(){
         def plistDir = new File(System.properties['user.home'], '/Library/LaunchAgents')
         def plistName = project.group + '.' + getDaemonName();
         def plistFile = new File(plistDir, plistName + '.plist');
@@ -89,7 +110,7 @@ class MacDaemon implements EnvDaemon {
 	 * {@inheritDoc}
 	 */
 	public void reboot(File launchDir){
-        unload(launchDir)
+        unload()
         sleep 2000
         load(launchDir)
 	}
