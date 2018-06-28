@@ -16,6 +16,13 @@ interface EnvDaemon {
 	String getDaemonName()
 
 	/**
+	 * 起動できるアプリケーションを作成します。
+	 * @param launchDir 起動ディレクトリ
+	 * @param arguments 起動コマンド引数
+	 */
+	void exe(File launchDir, Object[] arguments)
+
+	/**
 	 * デーモン起動を開始します。
 	 * @param launchDir 起動ディレクトリ
 	 * @param arguments 起動コマンド引数

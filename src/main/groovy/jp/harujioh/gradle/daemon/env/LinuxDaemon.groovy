@@ -32,6 +32,26 @@ class LinuxDaemon implements EnvDaemon {
         return project.rootProject.name.replaceAll(' ', '').toLowerCase() + 'd';
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void exe(File launchDir, Object[] arguments){
+        def exeDir = new File(System.properties['user.home'])
+        def exeFile = new File(exeDir, 'launch.sh');
+
+        def option = arguments.flatten().collect{ return " \\\n$it" }.join()
+
+        if(!exeDir.isDirectory()){
+            exeDir.mkdir()
+        }
+
+        exeFile.text = """#!/bin/sh
+
+/usr/bin/java$option"""
+
+        ['chmod', 'a+x', exeFile].execute()
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */

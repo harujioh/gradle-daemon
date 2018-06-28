@@ -32,6 +32,27 @@ class MacDaemon implements EnvDaemon {
         return project.rootProject.name.replaceAll(' ', '');
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void exe(File launchDir, Object[] arguments){
+        def exeDir = new File(System.properties['user.home'], 'Desktop')
+        def exeFile = new File(exeDir, 'launch.command');
+
+        def option = arguments.flatten().collect{ return " \\\n$it" }.join()
+
+        if(!exeDir.isDirectory()){
+            exeDir.mkdir()
+        }
+
+        exeFile.text = """#!/bin/sh
+
+/usr/bin/java$option"""
+
+        ['chmod', 'a+x', exeFile].execute()
+        ['/bin/bash', '-c', 'osascript -e "tell application \\"System Events\\" to make login item at end with properties {path:\\"' + exeFile + '\\"}"'].execute()
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */
