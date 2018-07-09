@@ -1,49 +1,22 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply from: 'gradle/library.gradle'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-def encoding = { it.encoding = 'UTF-8' }
-tasks.withType(AbstractCompile) each { encoding it.options }
-tasks.withType(GroovyCompile) each { encoding it.groovyOptions }
-
 repositories {
     jcenter()
+
+    maven {
+        url 's3://lab-garage/maven'
+        credentials(AwsCredentials) {
+            accessKey awsAccessKeyId
+            secretKey awsSecretAccessKey
+        }
+    }
 }
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
-}
-
-javadoc {
-    options.charSet = 'UTF-8'
-    options.encoding = 'UTF-8'
-}
-
-jar {
-    from sourceSets.main.allSource
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "file:${projectDir}/releases")
-        }
-    }
-}
-
-[install.repositories.mavenInstaller, uploadArchives.repositories.mavenDeployer]*.pom*.whenConfigured { pom ->
-    pom.project {
-        inceptionYear '2016'
-        packaging 'jar'
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
-    }
 }
