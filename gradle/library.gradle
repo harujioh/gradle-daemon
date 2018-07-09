@@ -1,0 +1,55 @@
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+def encoding = { it.encoding = 'UTF-8' }
+tasks.withType(AbstractCompile) each { encoding it.options }
+tasks.withType(GroovyCompile) each { encoding it.groovyOptions }
+
+javadoc {
+    options.charSet = 'UTF-8'
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    from sourceSets.main.allSource
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file:${projectDir}/releases")
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url 's3://lab-garage/maven'
+            credentials(AwsCredentials) {
+                accessKey awsAccessKeyId
+                secretKey awsSecretAccessKey
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+[install.repositories.mavenInstaller, uploadArchives.repositories.mavenDeployer]*.pom*.whenConfigured { pom ->
+    pom.project {
+        inceptionYear '2016'
+        packaging 'jar'
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+    }
+}

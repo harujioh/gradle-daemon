@@ -19,8 +19,9 @@ interface EnvDaemon {
 	 * 起動できるアプリケーションを作成します。
 	 * @param launchDir 起動ディレクトリ
 	 * @param arguments 起動コマンド引数
+	 * @param wakeup 起動時にアプリを実行するフラグ
 	 */
-	void exe(File launchDir, Object[] arguments)
+	void exe(File launchDir, Object[] arguments, boolean wakeup)
 
 	/**
 	 * デーモン起動を開始します。

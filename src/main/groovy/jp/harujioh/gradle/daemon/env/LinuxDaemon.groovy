@@ -35,7 +35,7 @@ class LinuxDaemon implements EnvDaemon {
     /**
      * {@inheritDoc}
      */
-    public void exe(File launchDir, Object[] arguments){
+    public void exe(File launchDir, Object[] arguments, boolean wakeup){
         def exeDir = new File(System.properties['user.home'])
         def exeFile = new File(exeDir, 'launch.sh');
 
