@@ -30,7 +30,7 @@ class DaemonPlugin implements Plugin<Project> {
 			
 			doLast {
 				checkLaunchDirectory(launchDir);
-				daemon.exe(launchDir, getArguments(project, launchDir))
+				daemon.exe(project.hasProperty('wakeup'), launchDir, getArguments(project, launchDir))
 			}
 		}
 		
