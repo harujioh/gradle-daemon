@@ -35,7 +35,7 @@ class MacDaemon implements EnvDaemon {
     /**
      * {@inheritDoc}
      */
-    public void exe(File launchDir, Object[] arguments){
+    public void exe(boolean wakeup, File launchDir, Object[] arguments){
         def exeDir = new File(System.properties['user.home'], 'Desktop')
         def exeFile = new File(exeDir, 'launch.command');
 
@@ -50,7 +50,9 @@ class MacDaemon implements EnvDaemon {
 /usr/bin/java$option"""
 
         ['chmod', 'a+x', exeFile].execute()
-        ['/bin/bash', '-c', 'osascript -e "tell application \\"System Events\\" to make login item at end with properties {path:\\"' + exeFile + '\\"}"'].execute()
+        if(wakeup){
+            ['/bin/bash', '-c', 'osascript -e "tell application \\"System Events\\" to make login item at end with properties {path:\\"' + exeFile + '\\"}"'].execute()
+        }
     }
 
 	/**
