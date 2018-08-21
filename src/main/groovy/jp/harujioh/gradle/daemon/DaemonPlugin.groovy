@@ -20,10 +20,8 @@ class DaemonPlugin implements Plugin<Project> {
 	void apply(Project project) {
 		project.extensions.create("daemon", DaemonConfig)
 
-		def os = project.ant.properties['os.name']
-		EnvDaemonType daemonType = EnvDaemonType.getDaemonType(os).orElseThrow({ new GradleException("Unsupported OS : $os") })
-		EnvDaemon daemon = daemonType.newDaemonInstance(project)
-		File launchDir = getLaunchDirectory(project, daemonType)
+		EnvDaemon daemon = project.daemon.getDaemon(project)
+		File launchDir = project.daemon.getLaunchDirectory(project)
 		
 		project.task('exe', group: 'Application', description: 'Create launch application.', dependsOn: ['jar']) {
 			mustRunAfter(['jar'])
@@ -59,25 +57,6 @@ class DaemonPlugin implements Plugin<Project> {
 		if(launchDir != null){
 			project.extensions.launchDir = launchDir
 		}
-	}
-
-	/**
-	 * 起動ディレクトリを取得します。
-	 * @param project プロジェクト
-	 * @param daemonType デーモン種類
-	 */
-	private File getLaunchDirectory(Project project, EnvDaemonType daemonType){
-		def launchDir = new File(project.projectDir, 'launch')
-		if(project.hasProperty('launch')){
-			launchDir = new File(launchDir, project.launch)
-		} else if(project.daemon.env) {
-			launchDir = new File(launchDir, daemonType.getDirectoryName())
-		}
-
-		if(!launchDir.isDirectory()){
-			return null;
-		}
-		return launchDir;
 	}
 
 	/**
