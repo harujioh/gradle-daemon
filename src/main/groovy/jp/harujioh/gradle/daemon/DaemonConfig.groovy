@@ -11,8 +11,7 @@ import org.gradle.api.GradleException
 class DaemonConfig {
 	def String configKey = 'config.yaml'
 	def String config = 'config.yaml'
-	def String log4j2 = 'log4j2.xml'
-	def String logback = 'logback.xml'
+	def logFiles = [ 'log4j2.xml' : { p -> "-Dlog4j.configurationFile=${p}" }, 'logback.xml': { p -> "-Dlogback.configurationFile=${p}" } ]
 	def option = '-Dapple.awt.UIElement=true'
 
 	/**
