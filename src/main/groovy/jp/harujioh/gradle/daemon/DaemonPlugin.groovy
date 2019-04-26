@@ -76,12 +76,16 @@ class DaemonPlugin implements Plugin<Project> {
 	 */
 	private def getArguments(Project project, File launchDir){
         def configFile = new File(launchDir, project.daemon.config)
-        def log4j2File = new File(launchDir, project.daemon.log4j2)
+
+        def parentLaunchDir = new File(project.projectDir, 'launch')
+		def logFileArgument = project.daemon.logFiles.collect{ map ->
+			[ new File(launchDir, map.key), new File(parentLaunchDir, map.key) ].findAll{ it.exists() }.collect{ map.value(it) }
+		}.flatten().find()
 
 		return [
             project.daemon.option,
             "-D${project.daemon.configKey}=${configFile}",
-            "-Dlog4j.configurationFile=${log4j2File}",
+            logFileArgument ?: [],
             "-jar",
             "${project.jar.archivePath}",
             project.hasProperty('daemonArgs') ? project.daemonArgs.split(' ') : []

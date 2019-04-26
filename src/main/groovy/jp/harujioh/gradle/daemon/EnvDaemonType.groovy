@@ -1,6 +1,7 @@
 package jp.harujioh.gradle.daemon
 
 import org.gradle.api.Project
+import java.util.function.Predicate
 import java.util.function.Function
 import jp.harujioh.gradle.daemon.env.*
 
@@ -14,19 +15,24 @@ enum EnvDaemonType {
 	/**
 	 * ant.properties['os.name'] = 'Mac OS X'
 	 */
-	MAC('Mac OS X', 'macos', { p -> new MacDaemon(p) }),
+	MAC({ s -> s.equals('Mac OS X') }, 'macos', { p -> new MacDaemon(p) }),
 
 	/**
 	 * ant.properties['os.name'] = 'Linux'
 	 */
-	LINUX('Linux', 'linux', { p -> new LinuxDaemon(p) }),
+	LINUX({ s -> s.equals('Linux') }, 'linux', { p -> new LinuxDaemon(p) }),
+
+	/**
+	 * ant.properties['os.name'] = 'Windows*'
+	 */
+	WINDOWS({ s -> s.startsWith('Windows') }, 'linux', { p -> new MacDaemon(p) }),
 
 	;
 
 	/**
-	 * OS名
+	 * OS名のフィルタ
 	 */
-	private final String osName;
+	private final Predicate<String> osNameFilter;
 
 	/**
 	 * デフォルトの起動ディレクトリ名
@@ -40,12 +46,12 @@ enum EnvDaemonType {
 
 	/**
 	 * デーモンの種類を初期化します。
-	 * @param osName ANTで取得できるOS名
+	 * @param osNameFilter ANTで取得できるOS名
 	 * @param directoryName デフォルトの起動ディレクトリ名
 	 * @param daemonConstructor デーモンインスタンスを作成するコンストラクタ
 	 */
-	private EnvDaemonType(String osName, String directoryName, Function<Project, EnvDaemon> daemonConstructor) {
-		this.osName = osName;
+	private EnvDaemonType(Predicate<String> osNameFilter, String directoryName, Function<Project, EnvDaemon> daemonConstructor) {
+		this.osNameFilter = osNameFilter;
 		this.directoryName = directoryName;
 		this.daemonConstructor = daemonConstructor;
 	}
@@ -57,7 +63,7 @@ enum EnvDaemonType {
 	 */
 	public static Optional<EnvDaemonType> getDaemonType(String osName){
 		return Arrays.stream(EnvDaemonType.values()) //
-			.filter({ t -> t.osName.equals(osName) }) //
+			.filter({ t -> t.osNameFilter.test(osName) }) //
 			.findAny();
 	}
 
