@@ -12,6 +12,7 @@ class DaemonConfig {
 	def String configKey = 'config.yaml'
 	def String config = 'config.yaml'
 	def String log4j2 = 'log4j2.xml'
+	def String logback = 'logback.xml'
 	def option = '-Dapple.awt.UIElement=true'
 
 	/**
